@@ -1,0 +1,18 @@
+namespace Kutuphane.Models.DTOs
+{
+    // POST 
+    public class KategoriCreateDto
+    {
+        public string Ad { get; set; } = string.Empty;
+        public string Aciklama { get; set; } = string.Empty;
+    }
+
+    // GET 
+    public class KategoriResponseDto  
+    {
+        public int Id { get; set; }
+        public string Ad { get; set; } = string.Empty;
+        public string Aciklama { get; set; } = string.Empty;
+
+    }
+}
