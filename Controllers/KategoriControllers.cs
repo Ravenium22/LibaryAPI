@@ -2,115 +2,230 @@ using Microsoft.AspNetCore.Mvc;
 using Kutuphane.Models;
 using Kutuphane.Models.DTOs;
 using Kutuphane.Repositories.Interfaces;
-
+using Microsoft.AspNetCore.Authorization;
 namespace Kutuphane.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class KategoriController : ControllerBase
     {
         private readonly IKategoriRepository _kategoriRepository;
+        private readonly ILogger<KategoriController> _logger;
 
-        public KategoriController(IKategoriRepository kategoriRepository)
+        public KategoriController(IKategoriRepository kategoriRepository, ILogger<KategoriController> logger)
         {
             _kategoriRepository = kategoriRepository;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KategoriResponseDto>>> GetAllKategoriler()
         {
-            var kategoriler = await _kategoriRepository.GetAllAsync();
-            var kategoriDtos = kategoriler.Select(k => new KategoriResponseDto
+            _logger.LogInformation("Tüm kategoriler listeleniyor");
+
+            try
             {
-                Id = k.Id,
-                Ad = k.Ad,
-                Aciklama = k.Aciklama
-            });
-            return Ok(kategoriDtos);
+                var kategoriler = await _kategoriRepository.GetAllAsync();
+                _logger.LogInformation("{Count} kategori bulundu", kategoriler.Count());
+
+                var kategoriDtos = kategoriler.Select(k => new KategoriResponseDto
+                {
+                    Id = k.Id,
+                    Ad = k.Ad,
+                    Aciklama = k.Aciklama
+                });
+                return Ok(kategoriDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kategoriler listelenirken hata oluştu");
+                return StatusCode(500, "Kategoriler listelenirken hata oluştu");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<KategoriResponseDto>> GetKategori(int id)
         {
-            var kategori = await _kategoriRepository.GetByIdAsync(id);
-            if (kategori == null) return NotFound();
-            
-            var kategoriDto = new KategoriResponseDto
+            _logger.LogInformation("Kategori getiriliyor: ID {Id}", id);
+
+            try
             {
-                Id = kategori.Id,
-                Ad = kategori.Ad,
-                Aciklama = kategori.Aciklama
-            };
-            return Ok(kategoriDto);
+                var kategori = await _kategoriRepository.GetByIdAsync(id);
+                if (kategori == null)
+                {
+                    _logger.LogWarning("Kategori bulunamadı: ID {Id}", id);
+                    return NotFound();
+                }
+
+                var kategoriDto = new KategoriResponseDto
+                {
+                    Id = kategori.Id,
+                    Ad = kategori.Ad,
+                    Aciklama = kategori.Aciklama
+                };
+
+                _logger.LogInformation("Kategori başarıyla getirildi: ID {Id}, Ad: {Ad}", kategori.Id, kategori.Ad);
+                return Ok(kategoriDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kategori getirilirken hata: ID {Id}", id);
+                return StatusCode(500, "Kategori getirilirken hata oluştu");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<KategoriResponseDto>> CreateKategori(KategoriCreateDto kategoriCreateDto)
         {
-            var kategori = new Kategori
+            _logger.LogInformation("Yeni kategori ekleniyor: {KategoriAd}", kategoriCreateDto.Ad);
+
+            try
             {
-                Ad = kategoriCreateDto.Ad,
-                Aciklama = kategoriCreateDto.Aciklama
-            };
-            
-            var createdKategori = await _kategoriRepository.AddAsync(kategori);
-            
-            var responseDto = new KategoriResponseDto
+                var kategori = new Kategori
+                {
+                    Ad = kategoriCreateDto.Ad,
+                    Aciklama = kategoriCreateDto.Aciklama
+                };
+
+                var createdKategori = await _kategoriRepository.AddAsync(kategori);
+                _logger.LogInformation("Kategori başarıyla eklendi: ID {Id}, Ad: {Ad}", createdKategori.Id, createdKategori.Ad);
+
+                var responseDto = new KategoriResponseDto
+                {
+                    Id = createdKategori.Id,
+                    Ad = createdKategori.Ad,
+                    Aciklama = createdKategori.Aciklama
+                };
+
+                return CreatedAtAction(nameof(GetKategori), new { id = createdKategori.Id }, responseDto);
+            }
+            catch (Exception ex)
             {
-                Id = createdKategori.Id,
-                Ad = createdKategori.Ad,
-                Aciklama = createdKategori.Aciklama
-            };
-            
-            return CreatedAtAction(nameof(GetKategori), new { id = createdKategori.Id }, responseDto);
+                _logger.LogError(ex, "Kategori eklenirken hata: {KategoriAd}", kategoriCreateDto.Ad);
+                return StatusCode(500, "Kategori eklenirken hata oluştu");
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateKategori(int id, KategoriCreateDto kategoriUpdateDto)
         {
-            var existingKategori = await _kategoriRepository.GetByIdAsync(id);
-            if (existingKategori == null) return NotFound();
-            
-            existingKategori.Ad = kategoriUpdateDto.Ad;
-            existingKategori.Aciklama = kategoriUpdateDto.Aciklama;
-            
-            await _kategoriRepository.UpdateAsync(existingKategori);
-            return NoContent();
+            _logger.LogInformation("Kategori güncelleniyor: ID {Id}", id);
+
+            try
+            {
+                var existingKategori = await _kategoriRepository.GetByIdAsync(id);
+                if (existingKategori == null)
+                {
+                    _logger.LogWarning("Güncellenecek kategori bulunamadı: ID {Id}", id);
+                    return NotFound();
+                }
+
+                existingKategori.Ad = kategoriUpdateDto.Ad;
+                existingKategori.Aciklama = kategoriUpdateDto.Aciklama;
+
+                await _kategoriRepository.UpdateAsync(existingKategori);
+                _logger.LogInformation("Kategori başarıyla güncellendi: ID {Id}, Yeni Ad: {Ad}", id, kategoriUpdateDto.Ad);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kategori güncellenirken hata: ID {Id}", id);
+                return StatusCode(500, "Kategori güncellenirken hata oluştu");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKategori(int id)
         {
-            await _kategoriRepository.DeleteAsync(id);
-            return NoContent();
+            _logger.LogInformation("Kategori siliniyor: ID {Id}", id);
+
+            try
+            {
+                var kategori = await _kategoriRepository.GetByIdAsync(id);
+                if (kategori == null)
+                {
+                    _logger.LogWarning("Silinecek kategori bulunamadı: ID {Id}", id);
+                    return NotFound();
+                }
+
+                await _kategoriRepository.DeleteAsync(id);
+                _logger.LogInformation("Kategori başarıyla silindi: ID {Id}", id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kategori silinirken hata: ID {Id}", id);
+                return StatusCode(500, "Kategori silinirken hata oluştu");
+            }
         }
 
         [HttpGet("with-kitaplar")]
         public async Task<ActionResult<IEnumerable<KategoriResponseDto>>> GetKategorilerWithKitaplar()
         {
-            var kategoriler = await _kategoriRepository.GetKategorilerWithKitaplarAsync();
-            var kategoriDtos = kategoriler.Select(k => new KategoriResponseDto
+            _logger.LogInformation("Kategoriler kitaplarıyla birlikte getiriliyor");
+
+            try
             {
-                Id = k.Id,
-                Ad = k.Ad,
-                Aciklama = k.Aciklama
-            });
-            return Ok(kategoriDtos);
+                var kategoriler = await _kategoriRepository.GetKategorilerWithKitaplarAsync();
+                _logger.LogInformation("Kitaplarıyla birlikte {Count} kategori bulundu", kategoriler.Count());
+
+                var kategoriDtos = kategoriler.Select(k => new KategoriResponseDto
+                {
+                    Id = k.Id,
+                    Ad = k.Ad,
+                    Aciklama = k.Aciklama,
+                    Kitaplar = k.Kitaplar.Select(kitap => new KitapResponseDto
+                    {
+                        Id = kitap.Id,
+                        Baslik = kitap.Baslik,
+                        ISBN = kitap.ISBN,
+                        YayinTarihi = kitap.YayinTarihi,
+                        SayfaSayisi = kitap.SayfaSayisi,
+                        MusaitMi = kitap.MusaitMi,
+                        YazarId = kitap.YazarId,
+                        KategoriId = kitap.KategoriId,
+                        LibraryId = kitap.LibraryId
+                    }).ToList()
+                });
+                return Ok(kategoriDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kategoriler kitaplarıyla getirilemedi");
+                return StatusCode(500, "Kategoriler kitaplarıyla getirilemedi");
+            }
         }
 
         [HttpGet("name/{name}")]
         public async Task<ActionResult<KategoriResponseDto>> GetKategoriByName(string name)
         {
-            var kategori = await _kategoriRepository.GetKategoriByNameAsync(name);
-            if (kategori == null) return NotFound();
-            
-            var kategoriDto = new KategoriResponseDto
+            _logger.LogInformation("İsme göre kategori getiriliyor: {Name}", name);
+
+            try
             {
-                Id = kategori.Id,
-                Ad = kategori.Ad,
-                Aciklama = kategori.Aciklama
-            };
-            return Ok(kategoriDto);
+                var kategori = await _kategoriRepository.GetKategoriByNameAsync(name);
+                if (kategori == null)
+                {
+                    _logger.LogWarning("İsimli kategori bulunamadı: {Name}", name);
+                    return NotFound();
+                }
+
+                var kategoriDto = new KategoriResponseDto
+                {
+                    Id = kategori.Id,
+                    Ad = kategori.Ad,
+                    Aciklama = kategori.Aciklama
+                };
+
+                _logger.LogInformation("İsimli kategori bulundu: {Name}, ID: {Id}", name, kategori.Id);
+                return Ok(kategoriDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "İsimli kategori getirilemedi: {Name}", name);
+                return StatusCode(500, "Kategori getirilemedi");
+            }
         }
     }
 }

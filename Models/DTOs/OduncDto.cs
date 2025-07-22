@@ -4,7 +4,7 @@ namespace Kutuphane.Models.DTOs
     {
         public DateTime OduncTarihi { get; set; }
         public DateTime TeslimTarihi { get; set; }
-        public DateTime IadeTarihi { get; set; }
+        public DateTime? IadeTarihi { get; set; }
         public bool IadeEdildiMi { get; set; } = false;
         public int KitapId { get; set; }
         public int KullaniciId { get; set; }
@@ -15,7 +15,7 @@ namespace Kutuphane.Models.DTOs
         public int Id { get; set; }
         public DateTime OduncTarihi { get; set; }
         public DateTime TeslimTarihi { get; set; }
-        public DateTime IadeTarihi { get; set; }
+        public DateTime? IadeTarihi { get; set; }
         public bool IadeEdildiMi { get; set; }
         public int KitapId { get; set; }
         public int KullaniciId { get; set; }

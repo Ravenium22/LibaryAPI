@@ -21,5 +21,6 @@ namespace Kutuphane.Models.DTOs
         public DateTime DogumTarihi { get; set; }
         public int ToplamOduncSayisi { get; set; }
         public bool AktifMi { get; set; }
+        public List<OduncResponseDto> Oduncler { get; set; } = new();
     }
 }

@@ -17,5 +17,6 @@ namespace Kutuphane.Models.DTOs
         public string Telefon { get; set; } = string.Empty;
         public int KitapSayisi { get; set; }
         public int UyeSayisi { get; set; }
+        public List<KitapResponseDto> Kitaplar { get; set; } = new();
     }
 }

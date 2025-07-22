@@ -23,6 +23,5 @@ namespace Kutuphane.Models.DTOs
         public int YazarId { get; set; }
         public int KategoriId { get; set; }
         public int LibraryId { get; set; }
-        // Navigation Property'ler yok!
     }
 }

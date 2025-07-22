@@ -2,146 +2,230 @@ using Microsoft.AspNetCore.Mvc;
 using Kutuphane.Models;
 using Kutuphane.Models.DTOs;
 using Kutuphane.Repositories.Interfaces;
-
+using Microsoft.AspNetCore.Authorization;
 namespace Kutuphane.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class KitapController : ControllerBase
     {
         private readonly IKitapRepository _kitapRepository;
+        private readonly ILogger<KitapController> _logger;
 
-        public KitapController(IKitapRepository kitapRepository)
+        public KitapController(IKitapRepository kitapRepository, ILogger<KitapController> logger)
         {
             _kitapRepository = kitapRepository;
+            _logger = logger;
         }
 
         // GET: api/kitap
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KitapResponseDto>>> GetAllKitaplar()
         {
-            var kitaplar = await _kitapRepository.GetAllAsync();
-            var kitapDtos = kitaplar.Select(k => new KitapResponseDto
+            _logger.LogInformation("Tüm kitaplar listeleniyor");
+
+            try
             {
-                Id = k.Id,
-                Baslik = k.Baslik,
-                ISBN = k.ISBN,
-                YayinTarihi = k.YayinTarihi,
-                SayfaSayisi = k.SayfaSayisi,
-                MusaitMi = k.MusaitMi,
-                YazarId = k.YazarId,
-                KategoriId = k.KategoriId,
-                LibraryId = k.LibraryId
-            });
-            return Ok(kitapDtos);
+                var kitaplar = await _kitapRepository.GetAllAsync();
+                _logger.LogInformation("{Count} kitap bulundu", kitaplar.Count());
+
+                var kitapDtos = kitaplar.Select(k => new KitapResponseDto
+                {
+                    Id = k.Id,
+                    Baslik = k.Baslik,
+                    ISBN = k.ISBN,
+                    YayinTarihi = k.YayinTarihi,
+                    SayfaSayisi = k.SayfaSayisi,
+                    MusaitMi = k.MusaitMi,
+                    YazarId = k.YazarId,
+                    KategoriId = k.KategoriId,
+                    LibraryId = k.LibraryId
+                });
+                return Ok(kitapDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kitaplar listelenirken hata oluştu");
+                return StatusCode(500, "Kitaplar listelenirken hata oluştu");
+            }
         }
 
         // GET: api/kitap/5
         [HttpGet("{id}")]
         public async Task<ActionResult<KitapResponseDto>> GetKitap(int id)
         {
-            var kitap = await _kitapRepository.GetByIdAsync(id);
-            
-            if (kitap == null)
-                return NotFound();
-            
-            var kitapDto = new KitapResponseDto
+            _logger.LogInformation("Kitap getiriliyor: ID {Id}", id);
+
+            try
             {
-                Id = kitap.Id,
-                Baslik = kitap.Baslik,
-                ISBN = kitap.ISBN,
-                YayinTarihi = kitap.YayinTarihi,
-                SayfaSayisi = kitap.SayfaSayisi,
-                MusaitMi = kitap.MusaitMi,
-                YazarId = kitap.YazarId,
-                KategoriId = kitap.KategoriId,
-                LibraryId = kitap.LibraryId
-            };
-                
-            return Ok(kitapDto);
+                var kitap = await _kitapRepository.GetByIdAsync(id);
+
+                if (kitap == null)
+                {
+                    _logger.LogWarning("Kitap bulunamadı: ID {Id}", id);
+                    return NotFound();
+                }
+
+                var kitapDto = new KitapResponseDto
+                {
+                    Id = kitap.Id,
+                    Baslik = kitap.Baslik,
+                    ISBN = kitap.ISBN,
+                    YayinTarihi = kitap.YayinTarihi,
+                    SayfaSayisi = kitap.SayfaSayisi,
+                    MusaitMi = kitap.MusaitMi,
+                    YazarId = kitap.YazarId,
+                    KategoriId = kitap.KategoriId,
+                    LibraryId = kitap.LibraryId
+                };
+
+                _logger.LogInformation("Kitap başarıyla getirildi: ID {Id}, Başlık: {Baslik}", kitap.Id, kitap.Baslik);
+                return Ok(kitapDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kitap getirilirken hata: ID {Id}", id);
+                return StatusCode(500, "Kitap getirilirken hata oluştu");
+            }
         }
 
         // POST: api/kitap
         [HttpPost]
         public async Task<ActionResult<KitapResponseDto>> CreateKitap(KitapCreateDto kitapCreateDto)
         {
-            var kitap = new Kitap
+            _logger.LogInformation("Yeni kitap ekleniyor: {KitapBaslik}", kitapCreateDto.Baslik);
+
+            try
             {
-                Baslik = kitapCreateDto.Baslik,
-                ISBN = kitapCreateDto.ISBN,
-                YayinTarihi = kitapCreateDto.YayinTarihi,
-                SayfaSayisi = kitapCreateDto.SayfaSayisi,
-                MusaitMi = kitapCreateDto.MusaitMi,
-                YazarId = kitapCreateDto.YazarId,
-                KategoriId = kitapCreateDto.KategoriId,
-                LibraryId = kitapCreateDto.LibraryId
-            };
-            
-            var createdKitap = await _kitapRepository.AddAsync(kitap);
-            
-            var responseDto = new KitapResponseDto
+                var kitap = new Kitap
+                {
+                    Baslik = kitapCreateDto.Baslik,
+                    ISBN = kitapCreateDto.ISBN,
+                    YayinTarihi = kitapCreateDto.YayinTarihi,
+                    SayfaSayisi = kitapCreateDto.SayfaSayisi,
+                    MusaitMi = kitapCreateDto.MusaitMi,
+                    YazarId = kitapCreateDto.YazarId,
+                    KategoriId = kitapCreateDto.KategoriId,
+                    LibraryId = kitapCreateDto.LibraryId
+                };
+
+                var createdKitap = await _kitapRepository.AddAsync(kitap);
+                _logger.LogInformation("Kitap başarıyla eklendi: ID {Id}, Başlık: {Baslik}", createdKitap.Id, createdKitap.Baslik);
+
+                var responseDto = new KitapResponseDto
+                {
+                    Id = createdKitap.Id,
+                    Baslik = createdKitap.Baslik,
+                    ISBN = createdKitap.ISBN,
+                    YayinTarihi = createdKitap.YayinTarihi,
+                    SayfaSayisi = createdKitap.SayfaSayisi,
+                    MusaitMi = createdKitap.MusaitMi,
+                    YazarId = createdKitap.YazarId,
+                    KategoriId = createdKitap.KategoriId,
+                    LibraryId = createdKitap.LibraryId
+                };
+
+                return CreatedAtAction(nameof(GetKitap), new { id = createdKitap.Id }, responseDto);
+            }
+            catch (Exception ex)
             {
-                Id = createdKitap.Id,
-                Baslik = createdKitap.Baslik,
-                ISBN = createdKitap.ISBN,
-                YayinTarihi = createdKitap.YayinTarihi,
-                SayfaSayisi = createdKitap.SayfaSayisi,
-                MusaitMi = createdKitap.MusaitMi,
-                YazarId = createdKitap.YazarId,
-                KategoriId = createdKitap.KategoriId,
-                LibraryId = createdKitap.LibraryId
-            };
-            
-            return CreatedAtAction(nameof(GetKitap), new { id = createdKitap.Id }, responseDto);
+                _logger.LogError(ex, "Kitap eklenirken hata: {KitapBaslik}", kitapCreateDto.Baslik);
+                return StatusCode(500, "Kitap eklenirken hata oluştu");
+            }
         }
 
         // PUT: api/kitap/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateKitap(int id, KitapCreateDto kitapUpdateDto)
         {
-            var existingKitap = await _kitapRepository.GetByIdAsync(id);
-            if (existingKitap == null)
-                return NotFound();
+            _logger.LogInformation("Kitap güncelleniyor: ID {Id}", id);
 
-            existingKitap.Baslik = kitapUpdateDto.Baslik;
-            existingKitap.ISBN = kitapUpdateDto.ISBN;
-            existingKitap.YayinTarihi = kitapUpdateDto.YayinTarihi;
-            existingKitap.SayfaSayisi = kitapUpdateDto.SayfaSayisi;
-            existingKitap.MusaitMi = kitapUpdateDto.MusaitMi;
-            existingKitap.YazarId = kitapUpdateDto.YazarId;
-            existingKitap.KategoriId = kitapUpdateDto.KategoriId;
-            existingKitap.LibraryId = kitapUpdateDto.LibraryId;
+            try
+            {
+                var existingKitap = await _kitapRepository.GetByIdAsync(id);
+                if (existingKitap == null)
+                {
+                    _logger.LogWarning("Güncellenecek kitap bulunamadı: ID {Id}", id);
+                    return NotFound();
+                }
 
-            await _kitapRepository.UpdateAsync(existingKitap);
-            return NoContent();
+                existingKitap.Baslik = kitapUpdateDto.Baslik;
+                existingKitap.ISBN = kitapUpdateDto.ISBN;
+                existingKitap.YayinTarihi = kitapUpdateDto.YayinTarihi;
+                existingKitap.SayfaSayisi = kitapUpdateDto.SayfaSayisi;
+                existingKitap.MusaitMi = kitapUpdateDto.MusaitMi;
+                existingKitap.YazarId = kitapUpdateDto.YazarId;
+                existingKitap.KategoriId = kitapUpdateDto.KategoriId;
+                existingKitap.LibraryId = kitapUpdateDto.LibraryId;
+
+                await _kitapRepository.UpdateAsync(existingKitap);
+                _logger.LogInformation("Kitap başarıyla güncellendi: ID {Id}, Yeni Başlık: {Baslik}", id, kitapUpdateDto.Baslik);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kitap güncellenirken hata: ID {Id}", id);
+                return StatusCode(500, "Kitap güncellenirken hata oluştu");
+            }
         }
 
         // DELETE: api/kitap/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKitap(int id)
         {
-            await _kitapRepository.DeleteAsync(id);
-            return NoContent();
+            _logger.LogInformation("Kitap siliniyor: ID {Id}", id);
+
+            try
+            {
+                var kitap = await _kitapRepository.GetByIdAsync(id);
+                if (kitap == null)
+                {
+                    _logger.LogWarning("Silinecek kitap bulunamadı: ID {Id}", id);
+                    return NotFound();
+                }
+
+                await _kitapRepository.DeleteAsync(id);
+                _logger.LogInformation("Kitap başarıyla silindi: ID {Id}", id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kitap silinirken hata: ID {Id}", id);
+                return StatusCode(500, "Kitap silinirken hata oluştu");
+            }
         }
 
         // GET: api/kitap/musait
         [HttpGet("musait")]
         public async Task<ActionResult<IEnumerable<KitapResponseDto>>> GetMusaitKitaplar()
         {
-            var kitaplar = await _kitapRepository.GetMusaitKitaplarAsync();
-            var kitapDtos = kitaplar.Select(k => new KitapResponseDto
+            _logger.LogInformation("Müsait kitaplar getiriliyor");
+
+            try
             {
-                Id = k.Id,
-                Baslik = k.Baslik,
-                ISBN = k.ISBN,
-                YayinTarihi = k.YayinTarihi,
-                SayfaSayisi = k.SayfaSayisi,
-                MusaitMi = k.MusaitMi,
-                YazarId = k.YazarId,
-                KategoriId = k.KategoriId,
-                LibraryId = k.LibraryId
-            });
-            return Ok(kitapDtos);
+                var kitaplar = await _kitapRepository.GetMusaitKitaplarAsync();
+                _logger.LogInformation("{Count} müsait kitap bulundu", kitaplar.Count());
+
+                var kitapDtos = kitaplar.Select(k => new KitapResponseDto
+                {
+                    Id = k.Id,
+                    Baslik = k.Baslik,
+                    ISBN = k.ISBN,
+                    YayinTarihi = k.YayinTarihi,
+                    SayfaSayisi = k.SayfaSayisi,
+                    MusaitMi = k.MusaitMi,
+                    YazarId = k.YazarId,
+                    KategoriId = k.KategoriId,
+                    LibraryId = k.LibraryId
+                });
+                return Ok(kitapDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Müsait kitaplar getirilemedi");
+                return StatusCode(500, "Müsait kitaplar getirilemedi");
+            }
         }
     }
 }

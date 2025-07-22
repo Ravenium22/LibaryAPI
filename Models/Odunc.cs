@@ -6,7 +6,7 @@ namespace Kutuphane.Models
         public DateTime OduncTarihi { get; set; }
 
         public DateTime TeslimTarihi { get; set; }
-        public DateTime IadeTarihi { get; set; }
+        public DateTime? IadeTarihi { get; set; }
         public bool IadeEdildiMi { get; set; } = false;
 
         public int KullaniciId { get; set; }
