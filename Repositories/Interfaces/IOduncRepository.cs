@@ -7,6 +7,6 @@ namespace Kutuphane.Repositories.Interfaces
         Task<IEnumerable<Odunc>> GetAktifOdunclerAsync();              // Henüz iade edilmemiş
         Task<IEnumerable<Odunc>> GetSuresiDolanOdunclerAsync();        // Süresi dolmuş
         Task<IEnumerable<Odunc>> GetKullaniciOdunclerAsync(int kullaniciId);  // Belirli kullanıcının ödünçleri
-        Task<IEnumerable<Odunc>> GetKitapOduncGecmisiAsync(int kitapId);      // Belirli kitabın ödünç geçmişi
+        Task<IEnumerable<Odunc>> GetKitapOduncGecmisiAsync(int kitapId);
     }
 }

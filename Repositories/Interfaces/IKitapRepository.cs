@@ -6,5 +6,7 @@ namespace Kutuphane.Repositories.Interfaces
     {
         Task<IEnumerable<Kitap>> GetKitaplarByYazarAsync(int yazarId);
         Task<IEnumerable<Kitap>> GetMusaitKitaplarAsync();
+
+        Task<IEnumerable<Kitap>> GetMesgulKitaplarAsync();
     }
 }

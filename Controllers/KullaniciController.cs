@@ -149,6 +149,7 @@ namespace Kutuphane.Controllers
                 existingKullanici.DogumTarihi = kullaniciUpdateDto.DogumTarihi;
                 existingKullanici.ToplamOduncSayisi = kullaniciUpdateDto.ToplamOduncSayisi;
                 existingKullanici.AktifMi = kullaniciUpdateDto.AktifMi;
+    
 
                 await _kullaniciRepository.UpdateAsync(existingKullanici);
                 _logger.LogInformation("Kullanıcı başarıyla güncellendi: ID {Id}, Email: {Email}", id, kullaniciUpdateDto.Email);
@@ -209,12 +210,20 @@ namespace Kutuphane.Controllers
                     Oduncler = k.Oduncler.Select(odunc => new OduncResponseDto
                     {
                         Id = odunc.Id,
-                        OduncTarihi = odunc.OduncTarihi,
-                        TeslimTarihi = odunc.TeslimTarihi,
-                        IadeTarihi = odunc.IadeTarihi,
+                        OduncAlinmaTarihi = odunc.OduncAlinmaTarihi,
+                        GeriVerilmesiGerekenTarih = odunc.GeriVerilmesiGerekenTarih,  
+                        GeriVerilisTarihi = odunc.GeriVerilisTarihi,        
                         IadeEdildiMi = odunc.IadeEdildiMi,
                         KitapId = odunc.KitapId,
-                        KullaniciId = odunc.KullaniciId
+                        KullaniciId = odunc.KullaniciId,
+                        KitapBaslik = odunc.Kitap.Baslik,
+                        YazarAdSoyad = $"{odunc.Kitap.Yazar.Ad} {odunc.Kitap.Yazar.Soyad}",
+                        KullaniciAdSoyad = $"{odunc.Kullanici.Ad} {odunc.Kullanici.Soyad}",
+                        GecikmeGunSayisi = odunc.GecikmeGunSayisi,
+                        GecikmeCezasi = odunc.GecikmeCezasi,
+                        Durumu = odunc.Durumu
+                        
+                        
                     }).ToList()
 
                 });

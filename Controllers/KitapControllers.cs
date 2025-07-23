@@ -3,6 +3,7 @@ using Kutuphane.Models;
 using Kutuphane.Models.DTOs;
 using Kutuphane.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Client;
 namespace Kutuphane.Controllers
 {
     [ApiController]
@@ -40,7 +41,8 @@ namespace Kutuphane.Controllers
                     MusaitMi = k.MusaitMi,
                     YazarId = k.YazarId,
                     KategoriId = k.KategoriId,
-                    LibraryId = k.LibraryId
+                    Konum = k.Konum,
+                    RafNo = k.RafNo
                 });
                 return Ok(kitapDtos);
             }
@@ -77,7 +79,8 @@ namespace Kutuphane.Controllers
                     MusaitMi = kitap.MusaitMi,
                     YazarId = kitap.YazarId,
                     KategoriId = kitap.KategoriId,
-                    LibraryId = kitap.LibraryId
+                    Konum = kitap.Konum,
+                    RafNo = kitap.RafNo
                 };
 
                 _logger.LogInformation("Kitap başarıyla getirildi: ID {Id}, Başlık: {Baslik}", kitap.Id, kitap.Baslik);
@@ -107,7 +110,8 @@ namespace Kutuphane.Controllers
                     MusaitMi = kitapCreateDto.MusaitMi,
                     YazarId = kitapCreateDto.YazarId,
                     KategoriId = kitapCreateDto.KategoriId,
-                    LibraryId = kitapCreateDto.LibraryId
+                    Konum = kitapCreateDto.Konum,
+                    RafNo = kitapCreateDto.RafNo
                 };
 
                 var createdKitap = await _kitapRepository.AddAsync(kitap);
@@ -123,7 +127,8 @@ namespace Kutuphane.Controllers
                     MusaitMi = createdKitap.MusaitMi,
                     YazarId = createdKitap.YazarId,
                     KategoriId = createdKitap.KategoriId,
-                    LibraryId = createdKitap.LibraryId
+                    Konum = createdKitap.Konum,
+                    RafNo = createdKitap.RafNo
                 };
 
                 return CreatedAtAction(nameof(GetKitap), new { id = createdKitap.Id }, responseDto);
@@ -157,7 +162,8 @@ namespace Kutuphane.Controllers
                 existingKitap.MusaitMi = kitapUpdateDto.MusaitMi;
                 existingKitap.YazarId = kitapUpdateDto.YazarId;
                 existingKitap.KategoriId = kitapUpdateDto.KategoriId;
-                existingKitap.LibraryId = kitapUpdateDto.LibraryId;
+                existingKitap.Konum = kitapUpdateDto.Konum;
+                existingKitap.RafNo = kitapUpdateDto.RafNo;
 
                 await _kitapRepository.UpdateAsync(existingKitap);
                 _logger.LogInformation("Kitap başarıyla güncellendi: ID {Id}, Yeni Başlık: {Baslik}", id, kitapUpdateDto.Baslik);
@@ -217,7 +223,9 @@ namespace Kutuphane.Controllers
                     MusaitMi = k.MusaitMi,
                     YazarId = k.YazarId,
                     KategoriId = k.KategoriId,
-                    LibraryId = k.LibraryId
+                    Konum = k.Konum,
+                    RafNo = k.RafNo
+
                 });
                 return Ok(kitapDtos);
             }
@@ -225,6 +233,40 @@ namespace Kutuphane.Controllers
             {
                 _logger.LogError(ex, "Müsait kitaplar getirilemedi");
                 return StatusCode(500, "Müsait kitaplar getirilemedi");
+            }
+
+
+        }
+        [HttpGet("mesgul")]
+
+        public async Task<ActionResult<IEnumerable<KitapResponseDto>>> GetMesgulKitaplar()
+        {
+            _logger.LogInformation("Müsait olmayan kitaplar getiriliyor");
+
+            try
+            {
+                var kitaplar = await _kitapRepository.GetMesgulKitaplarAsync();
+                _logger.LogInformation("{Count} müsait olmayan kitap bulundu", kitaplar.Count());
+
+                var kitapDtos = kitaplar.Select(k => new KitapResponseDto
+                {
+                    Id = k.Id,
+                    Baslik = k.Baslik,
+                    ISBN = k.ISBN,
+                    YayinTarihi = k.YayinTarihi,
+                    SayfaSayisi = k.SayfaSayisi,
+                    MusaitMi = k.MusaitMi,
+                    YazarId = k.YazarId,
+                    KategoriId = k.KategoriId,
+                    Konum = k.Konum,
+                    RafNo = k.RafNo
+                });
+                return Ok(kitapDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Müsait olmayan kitaplar getirilemedi");
+                return StatusCode(500, "Müsait olmayan kitaplar getirilemedi");
             }
         }
     }

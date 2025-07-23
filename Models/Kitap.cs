@@ -8,14 +8,14 @@ namespace Kutuphane.Models
         public DateTime YayinTarihi { get; set; }
         public int SayfaSayisi { get; set; }
         public bool MusaitMi { get; set; } = true;
+
+        public string Konum { get; set; } = string.Empty;
+        public string RafNo { get; set; } = string.Empty;
         
         public int YazarId { get; set; }
-        public int KategoriId { get; set; }
-        public int LibraryId { get; set; }  
-        
+        public int KategoriId { get; set; }        
         public Yazar? Yazar { get; set; }
         public Kategori? Kategori { get; set; }
-        public Library? Library { get; set; } 
         public List<Odunc> Oduncler { get; set; } = new();
     }
 }

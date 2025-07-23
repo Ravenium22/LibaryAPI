@@ -27,6 +27,37 @@ namespace Kutuphane.Controllers
             _jwtService = jwtService;
             _logger = logger;
         }
+        private string HashPassword(string password)
+        {
+            using (var hmac = new HMACSHA256())
+            {
+               var salt = Convert.ToBase64String(hmac.Key);
+                var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
+                return Convert.ToBase64String(hash) + ":" + salt;
+            }
+        }
+
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            try
+            {
+                var parts = hashedPassword.Split(':');
+                if (parts.Length != 2) return false;
+                
+                var hash = parts[0];
+                var salt = parts[1];
+                
+                using (var hmac = new HMACSHA256(Convert.FromBase64String(salt)))
+                {
+                    var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
+                    return Convert.ToBase64String(computedHash) == hash;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto request)
@@ -35,7 +66,6 @@ namespace Kutuphane.Controllers
 
             try
             {
-                // Kullanıcıyı email ile bul
                 var kullanicilar = await _kullaniciRepository.GetAllAsync();
                 var kullanici = kullanicilar.FirstOrDefault(k => k.Email == request.Email);
 
@@ -44,22 +74,28 @@ namespace Kutuphane.Controllers
                     _logger.LogWarning("Kullanıcı bulunamadı: {Email}", request.Email);
                     return Unauthorized("Email veya şifre hatalı");
                 }
+                if (!VerifyPassword(request.Password, kullanici.PasswordHash))
+                {
+                    _logger.LogWarning("Yanlış şifre: {Email}", request.Email);
+                    return Unauthorized("Email veya şifre hatalı");
+                }
 
 
                 // JWT token oluştur
                 var token = _jwtService.GenerateToken(
-                    kullanici.Id.ToString(),
-                    kullanici.Email,
-                    "User");
+                kullanici.Id.ToString(),
+                kullanici.Email,
+                kullanici.Role);
 
-                _logger.LogInformation("Başarılı giriş: {Email}", request.Email);
+                 _logger.LogInformation("Başarılı giriş: {Email}, Role: {Role}", request.Email, kullanici.Role);
 
                 return Ok(new LoginResponseDto
                 {
                     Token = token,
                     Email = kullanici.Email,
                     Ad = kullanici.Ad,
-                    Soyad = kullanici.Soyad
+                    Soyad = kullanici.Soyad,
+                    Role = kullanici.Role
                 });
             }
             catch (Exception ex)
@@ -86,6 +122,9 @@ namespace Kutuphane.Controllers
                     return BadRequest("Bu email zaten kayıtlı");
                 }
 
+                var hashedPassword = HashPassword(request.Password);
+
+
                 // Yeni kullanıcı oluştur
                 var kullanici = new Kullanici
                 {
@@ -94,12 +133,14 @@ namespace Kutuphane.Controllers
                     Email = request.Email,
                     Telefon = request.Telefon,
                     DogumTarihi = request.DogumTarihi,
+                    PasswordHash = hashedPassword,
+                    Role = "User",
                     ToplamOduncSayisi = 0,
                     AktifMi = true
                 };
 
                 var createdKullanici = await _kullaniciRepository.AddAsync(kullanici);
-                _logger.LogInformation("Yeni kullanıcı kaydedildi: {Email}, ID: {Id}", request.Email, createdKullanici.Id);
+                _logger.LogInformation("Yeni kullanıcı kaydedildi: {Email}, ID: {Id},  Rol: {Role}" , request.Email, createdKullanici.Id, createdKullanici.Role);
 
                 return Ok(new RegisterResponseDto
                 {

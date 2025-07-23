@@ -19,17 +19,14 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Serilog'u builder'a kaydet
 builder.Host.UseSerilog();
 
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger + JWT Authorization
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Kütüphane API", Version = "v1" });
     
-    // JWT Authorization için
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -58,21 +55,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
-// DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();
 
-// JWT Authentication
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -95,15 +89,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Repository kayıtları
 builder.Services.AddScoped<IKitapRepository, KitapRepository>();
 builder.Services.AddScoped<IYazarRepository, YazarRepository>();
 builder.Services.AddScoped<IKullaniciRepository, KullaniciRepository>();
 builder.Services.AddScoped<IKategoriRepository, KategoriRepository>();
-builder.Services.AddScoped<ILibraryRepository, LibraryRepository>();
 builder.Services.AddScoped<IOduncRepository, OduncRepository>();
 
-// SeedData Service
 builder.Services.AddScoped<SeedDataService>();
 
 var app = builder.Build();
@@ -113,7 +104,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     
-    // SeedData çalıştır
     using (var scope = app.Services.CreateScope())
     {
         try

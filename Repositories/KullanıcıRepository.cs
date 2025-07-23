@@ -56,7 +56,9 @@ namespace Kutuphane.Repositories
         public async Task<IEnumerable<Kullanici>> GetKullanicilarWithOdunclerAsync()
         {
             return await _context.Kullanicilar
-                .Include(k => k.Oduncler)
+            .Include(k => k.Oduncler)
+            .ThenInclude(o => o.Kitap)
+                .ThenInclude(kitap => kitap.Yazar)
                 .ToListAsync();
         }
 

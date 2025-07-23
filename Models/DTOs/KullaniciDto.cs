@@ -23,4 +23,12 @@ namespace Kutuphane.Models.DTOs
         public bool AktifMi { get; set; }
         public List<OduncResponseDto> Oduncler { get; set; } = new();
     }
+
+    public class KullaniciRegisterDto
+    {
+        public string Ad { get; set; } = string.Empty;
+        public string Soyad { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Telefon { get; set; } = string.Empty;
+        public DateTime DogumTarihi { get; set; }    }
 }

@@ -197,7 +197,8 @@ namespace Kutuphane.Controllers
                         MusaitMi = k.MusaitMi,
                         YazarId = k.YazarId,
                         KategoriId = k.KategoriId,
-                        LibraryId = k.LibraryId
+                        Konum = k.Konum,
+                        RafNo = k.RafNo
                     }).ToList()
                 });
                 return Ok(yazarDtos);

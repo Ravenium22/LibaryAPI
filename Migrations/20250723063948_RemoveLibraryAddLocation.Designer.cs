@@ -4,6 +4,7 @@ using Kutuphane.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Kutuphane.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723063948_RemoveLibraryAddLocation")]
+    partial class RemoveLibraryAddLocation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,12 +108,6 @@ namespace Kutuphane.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Soyad")
                         .HasColumnType("nvarchar(max)");
 
@@ -133,14 +130,11 @@ namespace Kutuphane.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("GeriVerilisTarihi")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("GeriVerilmesiGerekenTarih")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IadeEdildiMi")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("IadeTarihi")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("KitapId")
                         .HasColumnType("int");
@@ -148,7 +142,10 @@ namespace Kutuphane.Migrations
                     b.Property<int>("KullaniciId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("OduncAlinmaTarihi")
+                    b.Property<DateTime>("OduncTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TeslimTarihi")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

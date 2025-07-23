@@ -13,6 +13,8 @@ namespace Kutuphane.Models.DTOs
         public string Ad { get; set; } = string.Empty;
         public string Soyad { get; set; } = string.Empty;
 
+        public string Role { get; set; } = string.Empty;
+
     }
 
     public class RegisterRequestDto

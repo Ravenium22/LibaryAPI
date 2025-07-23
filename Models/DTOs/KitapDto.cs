@@ -9,7 +9,8 @@ namespace Kutuphane.Models.DTOs
         public bool MusaitMi { get; set; } = true;
         public int YazarId { get; set; }
         public int KategoriId { get; set; }
-        public int LibraryId { get; set; }
+        public string Konum { get; set; } = string.Empty;
+        public string RafNo { get; set; } = string.Empty;
     }
 
     public class KitapResponseDto
@@ -22,6 +23,7 @@ namespace Kutuphane.Models.DTOs
         public bool MusaitMi { get; set; }
         public int YazarId { get; set; }
         public int KategoriId { get; set; }
-        public int LibraryId { get; set; }
-    }
+        public string Konum { get; set; } = string.Empty;
+        public string RafNo { get; set; } = string.Empty;
+        }
 }

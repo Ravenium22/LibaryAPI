@@ -16,13 +16,19 @@ namespace Kutuphane.Repositories
 
         public async Task<IEnumerable<Odunc>> GetAllAsync()
         {
-            return await _context.Oduncler.ToListAsync();
-        }
+            return await _context.Oduncler
+            .Include(o => o.Kitap)
+            .ThenInclude(k => k.Yazar)
+            .Include(o => o.Kullanici)
+            .ToListAsync();        }
 
         public async Task<Odunc?> GetByIdAsync(int id)
         {
-            return await _context.Oduncler.FindAsync(id);
-        }
+            return await _context.Oduncler
+            .Include(o => o.Kitap)
+            .ThenInclude(k => k.Yazar)
+            .Include(o => o.Kullanici)
+            .FirstOrDefaultAsync(o => o.Id == id);        }
 
         public async Task<Odunc> AddAsync(Odunc entity)
         {
@@ -56,6 +62,9 @@ namespace Kutuphane.Repositories
         public async Task<IEnumerable<Odunc>> GetAktifOdunclerAsync()
         {
         return await _context.Oduncler
+        .Include(o => o.Kitap)
+            .ThenInclude(k => k.Yazar)
+        .Include(o => o.Kullanici)
         .Where(o => o.IadeEdildiMi == false)
         .ToListAsync();
         }
@@ -63,41 +72,29 @@ namespace Kutuphane.Repositories
         public async Task<IEnumerable<Odunc>> GetSuresiDolanOdunclerAsync()
         {
         return await _context.Oduncler
-        .Where(o => o.TeslimTarihi < DateTime.Now)  
-        .Where(o => o.IadeEdildiMi == false)       
+        .Include(o => o.Kitap)
+            .ThenInclude(k => k.Yazar)
+        .Include(o => o.Kullanici)
+        .Where(o => o.GeriVerilmesiGerekenTarih < DateTime.Now)
+        .Where(o => o.IadeEdildiMi == false)
         .ToListAsync();
         }  
 
-        public async Task<IEnumerable<Odunc>> GetKullanıcıOdunclerAsync(int KullaniciId){
+        public async Task<IEnumerable<Odunc>> GetKullaniciOdunclerAsync(int kullaniciId){
          return await _context.Oduncler
-        .Where(o => o.KullaniciId == KullaniciId)  
-        .ToListAsync();
-        }
-        public async Task<IEnumerable<Odunc>> GetKitapOduncGecmisAsync(int KitapId) {
-         return await _context.Oduncler
-        .Where(o => o.KitapId == KitapId)  
-        .Include(o => o.Kullanici)         
-        .ToListAsync();
-        }
-        public async Task<IEnumerable<Odunc>> GetKullaniciOdunclerAsync(int kullaniciId)
-{
-    return await _context.Oduncler
+        .Include(o => o.Kitap)
+            .ThenInclude(k => k.Yazar)
+        .Include(o => o.Kullanici)
         .Where(o => o.KullaniciId == kullaniciId)
         .ToListAsync();
-}
-
-public async Task<IEnumerable<Odunc>> GetKitapOduncGecmisiAsync(int kitapId)
-{
-    return await _context.Oduncler
-        .Where(o => o.KitapId == kitapId)
+        }
+        public async Task<IEnumerable<Odunc>> GetKitapOduncGecmisiAsync(int kitapId) {
+         return await _context.Oduncler
+        .Include(o => o.Kitap)
+            .ThenInclude(k => k.Yazar)
         .Include(o => o.Kullanici)
+        .Where(o => o.KitapId == kitapId)
         .ToListAsync();
-}
-
-
-
-
-
-
+        }
     }
 }

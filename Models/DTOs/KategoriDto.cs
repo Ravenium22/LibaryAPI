@@ -1,6 +1,5 @@
 namespace Kutuphane.Models.DTOs
 {
-    // POST 
     public class KategoriCreateDto
     {
         public string Ad { get; set; } = string.Empty;

@@ -32,12 +32,19 @@ namespace Kutuphane.Controllers
                 var oduncDtos = oduncler.Select(o => new OduncResponseDto
                 {
                     Id = o.Id,
-                    OduncTarihi = o.OduncTarihi,
-                    TeslimTarihi = o.TeslimTarihi,
-                    IadeTarihi = o.IadeTarihi,
+                    OduncAlinmaTarihi = o.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = o.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = o.GeriVerilisTarihi,
                     IadeEdildiMi = o.IadeEdildiMi,
                     KitapId = o.KitapId,
-                    KullaniciId = o.KullaniciId
+                    KullaniciId = o.KullaniciId,
+                    KitapBaslik = o.Kitap.Baslik,
+                    YazarAdSoyad = $"{o.Kitap.Yazar.Ad} {o.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{o.Kullanici.Ad} {o.Kullanici.Soyad}",
+                    GecikmeGunSayisi = o.GecikmeGunSayisi,
+                    GecikmeCezasi = o.GecikmeCezasi,
+                    Durumu = o.Durumu
+
                 });
                 return Ok(oduncDtos);
             }
@@ -65,12 +72,18 @@ namespace Kutuphane.Controllers
                 var oduncDto = new OduncResponseDto
                 {
                     Id = odunc.Id,
-                    OduncTarihi = odunc.OduncTarihi,
-                    TeslimTarihi = odunc.TeslimTarihi,
-                    IadeTarihi = odunc.IadeTarihi,
+                    OduncAlinmaTarihi = odunc.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = odunc.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = odunc.GeriVerilisTarihi,
                     IadeEdildiMi = odunc.IadeEdildiMi,
                     KitapId = odunc.KitapId,
-                    KullaniciId = odunc.KullaniciId
+                    KullaniciId = odunc.KullaniciId,
+                    KitapBaslik = odunc.Kitap.Baslik,
+                    YazarAdSoyad = $"{odunc.Kitap.Yazar.Ad} {odunc.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{odunc.Kullanici.Ad} {odunc.Kullanici.Soyad}",
+                    GecikmeGunSayisi = odunc.GecikmeGunSayisi,
+                    GecikmeCezasi = odunc.GecikmeCezasi,
+                    Durumu = odunc.Durumu
                 };
 
                 _logger.LogInformation("Ödünç başarıyla getirildi: ID {Id}, Kullanıcı: {KullaniciId}, Kitap: {KitapId}", odunc.Id, odunc.KullaniciId, odunc.KitapId);
@@ -92,9 +105,9 @@ namespace Kutuphane.Controllers
             {
                 var odunc = new Odunc
                 {
-                    OduncTarihi = oduncCreateDto.OduncTarihi,
-                    TeslimTarihi = oduncCreateDto.TeslimTarihi,
-                    IadeTarihi = oduncCreateDto.IadeTarihi,
+                    OduncAlinmaTarihi = oduncCreateDto.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = oduncCreateDto.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = oduncCreateDto.GeriVerilisTarihi,
                     IadeEdildiMi = oduncCreateDto.IadeEdildiMi,
                     KitapId = oduncCreateDto.KitapId,
                     KullaniciId = oduncCreateDto.KullaniciId
@@ -106,12 +119,18 @@ namespace Kutuphane.Controllers
                 var responseDto = new OduncResponseDto
                 {
                     Id = createdOdunc.Id,
-                    OduncTarihi = createdOdunc.OduncTarihi,
-                    TeslimTarihi = createdOdunc.TeslimTarihi,
-                    IadeTarihi = createdOdunc.IadeTarihi,
+                    OduncAlinmaTarihi = createdOdunc.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = createdOdunc.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = createdOdunc.GeriVerilisTarihi,
                     IadeEdildiMi = createdOdunc.IadeEdildiMi,
                     KitapId = createdOdunc.KitapId,
-                    KullaniciId = createdOdunc.KullaniciId
+                    KullaniciId = createdOdunc.KullaniciId,
+                    KitapBaslik = createdOdunc.Kitap.Baslik,
+                    YazarAdSoyad = $"{createdOdunc.Kitap.Yazar.Ad} {createdOdunc.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{createdOdunc.Kullanici.Ad} {createdOdunc.Kullanici.Soyad}",
+                    GecikmeGunSayisi = createdOdunc.GecikmeGunSayisi,
+                    GecikmeCezasi = createdOdunc.GecikmeCezasi,
+                    Durumu = createdOdunc.Durumu
                 };
 
                 return CreatedAtAction(nameof(GetOdunc), new { id = createdOdunc.Id }, responseDto);
@@ -137,9 +156,9 @@ namespace Kutuphane.Controllers
                     return NotFound();
                 }
 
-                existingOdunc.OduncTarihi = oduncUpdateDto.OduncTarihi;
-                existingOdunc.TeslimTarihi = oduncUpdateDto.TeslimTarihi;
-                existingOdunc.IadeTarihi = oduncUpdateDto.IadeTarihi;
+                existingOdunc.OduncAlinmaTarihi = oduncUpdateDto.OduncAlinmaTarihi;
+                existingOdunc.GeriVerilmesiGerekenTarih = oduncUpdateDto.GeriVerilmesiGerekenTarih;
+                existingOdunc.GeriVerilisTarihi = oduncUpdateDto.GeriVerilisTarihi;
                 existingOdunc.IadeEdildiMi = oduncUpdateDto.IadeEdildiMi;
                 existingOdunc.KitapId = oduncUpdateDto.KitapId;
                 existingOdunc.KullaniciId = oduncUpdateDto.KullaniciId;
@@ -193,12 +212,18 @@ namespace Kutuphane.Controllers
                 var oduncDtos = oduncler.Select(o => new OduncResponseDto
                 {
                     Id = o.Id,
-                    OduncTarihi = o.OduncTarihi,
-                    TeslimTarihi = o.TeslimTarihi,
-                    IadeTarihi = o.IadeTarihi,
+                    OduncAlinmaTarihi = o.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = o.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = o.GeriVerilisTarihi,
                     IadeEdildiMi = o.IadeEdildiMi,
                     KitapId = o.KitapId,
-                    KullaniciId = o.KullaniciId
+                    KullaniciId = o.KullaniciId,
+                    KitapBaslik = o.Kitap.Baslik,
+                    YazarAdSoyad = $"{o.Kitap.Yazar.Ad} {o.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{o.Kullanici.Ad} {o.Kullanici.Soyad}",
+                    GecikmeGunSayisi = o.GecikmeGunSayisi,
+                    GecikmeCezasi = o.GecikmeCezasi,
+                    Durumu = o.Durumu
                 });
                 return Ok(oduncDtos);
             }
@@ -222,12 +247,18 @@ namespace Kutuphane.Controllers
                 var oduncDtos = oduncler.Select(o => new OduncResponseDto
                 {
                     Id = o.Id,
-                    OduncTarihi = o.OduncTarihi,
-                    TeslimTarihi = o.TeslimTarihi,
-                    IadeTarihi = o.IadeTarihi,
+                    OduncAlinmaTarihi = o.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = o.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = o.GeriVerilisTarihi,
                     IadeEdildiMi = o.IadeEdildiMi,
                     KitapId = o.KitapId,
-                    KullaniciId = o.KullaniciId
+                    KullaniciId = o.KullaniciId,
+                    KitapBaslik = o.Kitap.Baslik,
+                    YazarAdSoyad = $"{o.Kitap.Yazar.Ad} {o.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{o.Kullanici.Ad} {o.Kullanici.Soyad}",
+                    GecikmeGunSayisi = o.GecikmeGunSayisi,
+                    GecikmeCezasi = o.GecikmeCezasi,
+                    Durumu = o.Durumu
                 });
                 return Ok(oduncDtos);
             }
@@ -251,12 +282,18 @@ namespace Kutuphane.Controllers
                 var oduncDtos = oduncler.Select(o => new OduncResponseDto
                 {
                     Id = o.Id,
-                    OduncTarihi = o.OduncTarihi,
-                    TeslimTarihi = o.TeslimTarihi,
-                    IadeTarihi = o.IadeTarihi,
+                    OduncAlinmaTarihi = o.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = o.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = o.GeriVerilisTarihi,
                     IadeEdildiMi = o.IadeEdildiMi,
                     KitapId = o.KitapId,
-                    KullaniciId = o.KullaniciId
+                    KullaniciId = o.KullaniciId,
+                    KitapBaslik = o.Kitap.Baslik,
+                    YazarAdSoyad = $"{o.Kitap.Yazar.Ad} {o.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{o.Kullanici.Ad} {o.Kullanici.Soyad}",
+                    GecikmeGunSayisi = o.GecikmeGunSayisi,
+                    GecikmeCezasi = o.GecikmeCezasi,
+                    Durumu = o.Durumu
                 });
                 return Ok(oduncDtos);
             }
@@ -280,12 +317,19 @@ namespace Kutuphane.Controllers
                 var oduncDtos = oduncler.Select(o => new OduncResponseDto
                 {
                     Id = o.Id,
-                    OduncTarihi = o.OduncTarihi,
-                    TeslimTarihi = o.TeslimTarihi,
-                    IadeTarihi = o.IadeTarihi,
+                    OduncAlinmaTarihi = o.OduncAlinmaTarihi,
+                    GeriVerilmesiGerekenTarih = o.GeriVerilmesiGerekenTarih,
+                    GeriVerilisTarihi = o.GeriVerilisTarihi,
                     IadeEdildiMi = o.IadeEdildiMi,
                     KitapId = o.KitapId,
-                    KullaniciId = o.KullaniciId
+                    KullaniciId = o.KullaniciId,
+                    KitapBaslik = o.Kitap.Baslik,
+                    YazarAdSoyad = $"{o.Kitap.Yazar.Ad} {o.Kitap.Yazar.Soyad}",
+                    KullaniciAdSoyad = $"{o.Kullanici.Ad} {o.Kullanici.Soyad}",
+                    GecikmeGunSayisi = o.GecikmeGunSayisi,
+                    GecikmeCezasi = o.GecikmeCezasi,
+                    Durumu = o.Durumu
+
                 });
                 return Ok(oduncDtos);
             }
@@ -294,6 +338,10 @@ namespace Kutuphane.Controllers
                 _logger.LogError(ex, "Kitap ödünç geçmişi getirilemedi: Kitap ID {KitapId}", kitapId);
                 return StatusCode(500, "Kitap ödünç geçmişi getirilemedi");
             }
+
+
         }
+
     }
+
 }
