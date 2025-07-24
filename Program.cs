@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Serilog.Events;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console()
-    .WriteTo.File("logs/kutuphane-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
+    .WriteTo.Seq("http://localhost:5341")
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -95,7 +96,6 @@ builder.Services.AddScoped<IKullaniciRepository, KullaniciRepository>();
 builder.Services.AddScoped<IKategoriRepository, KategoriRepository>();
 builder.Services.AddScoped<IOduncRepository, OduncRepository>();
 
-builder.Services.AddScoped<SeedDataService>();
 
 var app = builder.Build();
 
@@ -104,19 +104,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     
-    using (var scope = app.Services.CreateScope())
-    {
-        try
-        {
-            var seedService = scope.ServiceProvider.GetRequiredService<SeedDataService>();
-            await seedService.SeedAsync();
-            Log.Information("Test verileri yüklendi");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Test verileri yüklenirken hata oluştu");
-        }
-    }
 }
 
 app.UseHttpsRedirection();

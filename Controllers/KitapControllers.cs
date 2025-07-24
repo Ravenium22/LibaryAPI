@@ -95,6 +95,7 @@ namespace Kutuphane.Controllers
 
         // POST: api/kitap
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<KitapResponseDto>> CreateKitap(KitapCreateDto kitapCreateDto)
         {
             _logger.LogInformation("Yeni kitap ekleniyor: {KitapBaslik}", kitapCreateDto.Baslik);
@@ -142,6 +143,7 @@ namespace Kutuphane.Controllers
 
         // PUT: api/kitap/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateKitap(int id, KitapCreateDto kitapUpdateDto)
         {
             _logger.LogInformation("Kitap güncelleniyor: ID {Id}", id);
@@ -178,6 +180,7 @@ namespace Kutuphane.Controllers
 
         // DELETE: api/kitap/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteKitap(int id)
         {
             _logger.LogInformation("Kitap siliniyor: ID {Id}", id);
@@ -268,6 +271,49 @@ namespace Kutuphane.Controllers
                 _logger.LogError(ex, "Müsait olmayan kitaplar getirilemedi");
                 return StatusCode(500, "Müsait olmayan kitaplar getirilemedi");
             }
+        }
+        [HttpGet("kitap/search")]
+        public async Task<ActionResult<IEnumerable<KitapResponseDto>>> SearchKitap(string query)
+        {
+            _logger.LogInformation("Kitap arama : {Query}", query);
+            try
+            {
+                var kitaplar = await _kitapRepository.KitapSearchAsync(query);
+                if (kitaplar == null || !kitaplar.Any())
+                {
+                    _logger.LogWarning("Arama sonucu bulunamadı: {Query}", query);
+                    return NotFound("Arama sonucu bulunamadı");
+                }
+
+                var kitapDtos = kitaplar.Select(k => new KitapResponseDto
+                {
+                    Id = k.Id,
+                    Baslik = k.Baslik,
+                    ISBN = k.ISBN,
+                    YayinTarihi = k.YayinTarihi,
+                    SayfaSayisi = k.SayfaSayisi,
+                    MusaitMi = k.MusaitMi,
+                    YazarId = k.YazarId,
+                    KategoriId = k.KategoriId,
+                    Konum = k.Konum,
+                    RafNo = k.RafNo
+                });
+
+                return Ok(kitapDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Kitap arama sırasında hata oluştu: {Query}", query);
+                return StatusCode(500, "Kitap arama sırasında hata oluştu");
+
+
+            }
+
+
+            
+
+
+
         }
     }
 }

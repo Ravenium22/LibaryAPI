@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Kutuphane.Data;
 using Kutuphane.Models;
 using Kutuphane.Repositories.Interfaces;
-
+#nullable enable
 namespace Kutuphane.Repositories
 {
     public class KategoriRepository : IKategoriRepository
@@ -63,7 +63,7 @@ namespace Kutuphane.Repositories
         public async Task<Kategori?> GetKategoriByNameAsync(string name)
         {
             return await _context.Kategoriler
-                .FirstOrDefaultAsync(k => k.Ad == name);  // Ad property'si
+                .FirstOrDefaultAsync(k => k.Ad == name);
         }
     }
 }

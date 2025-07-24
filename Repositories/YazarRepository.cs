@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Kutuphane.Data;
 using Kutuphane.Models;
 using Kutuphane.Repositories.Interfaces;
-
+#nullable enable
 namespace Kutuphane.Repositories
 {
     public class YazarRepository : IYazarRepository
@@ -65,6 +65,14 @@ namespace Kutuphane.Repositories
             return await _context.Yazarlar
                 .Where(y => y.Ulke == ulke)
                 .ToListAsync();
+        }
+        public async Task<IEnumerable<Yazar>> YazarSearchAsync(string query)
+        {
+            return await _context.Yazarlar
+                .Include(k => k.Kitaplar)
+                .Where(k => k.Ad.ToLower().Contains(query) || k.Soyad.ToLower().Contains(query))
+                .ToListAsync();
+        
         }
     }
 }

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Kutuphane.Models;
 using Kutuphane.Repositories.Interfaces;
 using Kutuphane.Data;
-
+#nullable enable
 namespace Kutuphane.Repositories
 {
 
@@ -65,6 +65,15 @@ namespace Kutuphane.Repositories
         public async Task<IEnumerable<Kitap>> GetMesgulKitaplarAsync()
         {
             return await _context.Kitaplar.Where(k => !k.MusaitMi).ToListAsync();
+        }
+        public async Task<IEnumerable<Kitap>> KitapSearchAsync(string searchTerm)
+        {
+            return await _context.Kitaplar
+                .Include(k => k.Yazar)
+                .Include(k => k.Kategori)
+                .Where(k => k.Baslik.ToLower().Contains(searchTerm) || k.ISBN.Contains(searchTerm))
+                .ToListAsync();
+        
         }
 
 }

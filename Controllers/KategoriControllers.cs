@@ -76,6 +76,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<KategoriResponseDto>> CreateKategori(KategoriCreateDto kategoriCreateDto)
         {
             _logger.LogInformation("Yeni kategori ekleniyor: {KategoriAd}", kategoriCreateDto.Ad);
@@ -108,6 +109,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateKategori(int id, KategoriCreateDto kategoriUpdateDto)
         {
             _logger.LogInformation("Kategori güncelleniyor: ID {Id}", id);
@@ -136,6 +138,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteKategori(int id)
         {
             _logger.LogInformation("Kategori siliniyor: ID {Id}", id);

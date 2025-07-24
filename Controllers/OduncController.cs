@@ -3,6 +3,7 @@ using Kutuphane.Models;
 using Kutuphane.Models.DTOs;
 using Kutuphane.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using static OduncResponseDto;
 namespace Kutuphane.Controllers
 {
     [ApiController]
@@ -97,6 +98,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<OduncResponseDto>> CreateOdunc(OduncCreateDto oduncCreateDto)
         {
             _logger.LogInformation("Yeni ödünç ekleniyor: Kullanıcı {KullaniciId}, Kitap {KitapId}", oduncCreateDto.KullaniciId, oduncCreateDto.KitapId);
@@ -143,6 +145,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateOdunc(int id, OduncCreateDto oduncUpdateDto)
         {
             _logger.LogInformation("Ödünç güncelleniyor: ID {Id}", id);
@@ -175,6 +178,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteOdunc(int id)
         {
             _logger.LogInformation("Ödünç siliniyor: ID {Id}", id);
@@ -338,10 +342,37 @@ namespace Kutuphane.Controllers
                 _logger.LogError(ex, "Kitap ödünç geçmişi getirilemedi: Kitap ID {KitapId}", kitapId);
                 return StatusCode(500, "Kitap ödünç geçmişi getirilemedi");
             }
+        }
+        [HttpGet("borç-raporu")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<BorcRaporuResponseDto>>> GetBorçRaporu([FromQuery] BorcRaporuFilterDto filter)
+        {   
+        _logger.LogInformation("Borç raporu isteniyor: MinBorç={MinBorç}, MaxBorç={MaxBorç}, Limit={Limit}, Sıralama={Sıralama}", 
+        filter.MinBorç, filter.MaxBorç, filter.Limit, filter.Sıralama);
 
+        try
+    {
+            var rapor = await _oduncRepository.GetBorcRaporuAsync(
+            filter.MinBorç,
+            filter.MaxBorç,
+            filter.Limit,
+            filter.Sıralama
+        );
 
+        if (!rapor.Any())
+        {
+            _logger.LogInformation("Hiç gecikmiş ödünç bulunamadı");
+            return Ok(new List<BorcRaporuResponseDto>()); 
         }
 
+        _logger.LogInformation("{Count} kullanıcı için borç raporu oluşturuldu", rapor.Count());
+        return Ok(rapor);
+        }
+            catch (Exception ex)
+    {
+        _logger.LogError(ex, "Borç raporu oluşturulurken hata oluştu");
+        return StatusCode(500, "Borç raporu oluşturulurken hata oluştu");
     }
-
+    }
+}
 }

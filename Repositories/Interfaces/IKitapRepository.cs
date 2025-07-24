@@ -8,5 +8,7 @@ namespace Kutuphane.Repositories.Interfaces
         Task<IEnumerable<Kitap>> GetMusaitKitaplarAsync();
 
         Task<IEnumerable<Kitap>> GetMesgulKitaplarAsync();
+
+        Task<IEnumerable<Kitap>> KitapSearchAsync(string searchTerm);
     }
 }

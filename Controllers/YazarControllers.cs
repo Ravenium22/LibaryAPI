@@ -80,6 +80,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<YazarResponseDto>> CreateYazar(YazarCreateDto yazarCreateDto)
         {
             _logger.LogInformation("Yeni yazar ekleniyor: {YazarAd} {YazarSoyad}", yazarCreateDto.Ad, yazarCreateDto.Soyad);
@@ -116,6 +117,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateYazar(int id, YazarCreateDto yazarUpdateDto)
         {
             _logger.LogInformation("Yazar güncelleniyor: ID {Id}", id);
@@ -146,6 +148,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteYazar(int id)
         {
             _logger.LogInformation("Yazar siliniyor: ID {Id}", id);
@@ -236,5 +239,38 @@ namespace Kutuphane.Controllers
                 return StatusCode(500, "Ülkeye göre yazarlar getirilemedi");
             }
         }
+        [HttpGet("search")]
+public async Task<ActionResult<IEnumerable<YazarResponseDto>>> SearchYazar(string query)
+{
+    _logger.LogInformation("Yazar arama : {Query}", query);
+    
+    try
+    {
+        var yazarlar = await _yazarRepository.YazarSearchAsync(query);
+        
+        if (yazarlar == null || !yazarlar.Any())
+        {
+            _logger.LogWarning("Arama sonucu bulunamadı: {Query}", query);
+            return NotFound("Arama sonucu bulunamadı");
+        }
+
+        var yazarDtos = yazarlar.Select(y => new YazarResponseDto
+        {
+            Id = y.Id,
+            Ad = y.Ad,
+            Soyad = y.Soyad,
+            DogumTarihi = y.DogumTarihi,
+            Ulke = y.Ulke
+        });
+
+        return Ok(yazarDtos);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Yazar arama sırasında hata oluştu: {Query}", query);
+        return StatusCode(500, "Yazar arama sırasında hata oluştu");
+    }
+}
+                
     }
 }

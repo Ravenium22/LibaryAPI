@@ -87,6 +87,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<KullaniciResponseDto>> CreateKullanici(KullaniciCreateDto kullaniciCreateDto)
         {
             _logger.LogInformation("Yeni kullanıcı ekleniyor: {Email}", kullaniciCreateDto.Email);
@@ -100,8 +101,8 @@ namespace Kutuphane.Controllers
                     Email = kullaniciCreateDto.Email,
                     Telefon = kullaniciCreateDto.Telefon,
                     DogumTarihi = kullaniciCreateDto.DogumTarihi,
-                    ToplamOduncSayisi = kullaniciCreateDto.ToplamOduncSayisi,
-                    AktifMi = kullaniciCreateDto.AktifMi
+                    AktifMi = true,
+                    ToplamOduncSayisi = 0
                 };
 
                 var createdKullanici = await _kullaniciRepository.AddAsync(kullanici);
@@ -129,6 +130,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateKullanici(int id, KullaniciCreateDto kullaniciUpdateDto)
         {
             _logger.LogInformation("Kullanıcı güncelleniyor: ID {Id}", id);
@@ -147,9 +149,8 @@ namespace Kutuphane.Controllers
                 existingKullanici.Email = kullaniciUpdateDto.Email;
                 existingKullanici.Telefon = kullaniciUpdateDto.Telefon;
                 existingKullanici.DogumTarihi = kullaniciUpdateDto.DogumTarihi;
-                existingKullanici.ToplamOduncSayisi = kullaniciUpdateDto.ToplamOduncSayisi;
-                existingKullanici.AktifMi = kullaniciUpdateDto.AktifMi;
-    
+
+
 
                 await _kullaniciRepository.UpdateAsync(existingKullanici);
                 _logger.LogInformation("Kullanıcı başarıyla güncellendi: ID {Id}, Email: {Email}", id, kullaniciUpdateDto.Email);
@@ -163,6 +164,7 @@ namespace Kutuphane.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteKullanici(int id)
         {
             _logger.LogInformation("Kullanıcı siliniyor: ID {Id}", id);

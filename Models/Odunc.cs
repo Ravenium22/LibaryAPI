@@ -2,6 +2,8 @@ namespace Kutuphane.Models
 {
     public class Odunc
     {
+        internal decimal Borc;
+
         public int Id { get; set; }
         public DateTime OduncAlinmaTarihi { get; set; }
         public DateTime GeriVerilmesiGerekenTarih { get; set; }
@@ -13,7 +15,7 @@ namespace Kutuphane.Models
 
         public Kitap Kitap { get; set; }
         public Kullanici Kullanici { get; set; } = null!;
-
+ 
         public int GecikmeGunSayisi
         {
             get
@@ -24,7 +26,7 @@ namespace Kutuphane.Models
                 return bugun > gecikmeTarihi ? (bugun - gecikmeTarihi).Days : 0;
             }
         }
-
+    
         public decimal GecikmeCezasi => GecikmeGunSayisi * 50m;
 
         public string Durumu

@@ -1,12 +1,20 @@
 using Kutuphane.Models;
-
+using static OduncResponseDto;
+#nullable enable
 namespace Kutuphane.Repositories.Interfaces
 {
-    public interface IOduncRepository : IRepository<Odunc>  // Odunc için!
+    public interface IOduncRepository : IRepository<Odunc>
     {
-        Task<IEnumerable<Odunc>> GetAktifOdunclerAsync();              // Henüz iade edilmemiş
-        Task<IEnumerable<Odunc>> GetSuresiDolanOdunclerAsync();        // Süresi dolmuş
-        Task<IEnumerable<Odunc>> GetKullaniciOdunclerAsync(int kullaniciId);  // Belirli kullanıcının ödünçleri
+        Task<IEnumerable<Odunc>> GetAktifOdunclerAsync();
+        Task<IEnumerable<Odunc>> GetSuresiDolanOdunclerAsync();
+        Task<IEnumerable<Odunc>> GetKullaniciOdunclerAsync(int kullaniciId);
         Task<IEnumerable<Odunc>> GetKitapOduncGecmisiAsync(int kitapId);
+        Task<IEnumerable<BorcRaporuResponseDto>> GetBorcRaporuAsync(
+        decimal? minBorç, 
+        decimal? maxBorç, 
+        int? limit, 
+        string? sıralama
+        );
     }
+    
 }
