@@ -65,8 +65,28 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IJwtService, JwtService>();
+// CORS Policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:3001",    // Alternatif port
+            "http://localhost:4200",    // Angular (ihtiyaç olursa)
+            "http://localhost:8080"     // Vue/diğer
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+    });
+});
 
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -95,20 +115,28 @@ builder.Services.AddScoped<IYazarRepository, YazarRepository>();
 builder.Services.AddScoped<IKullaniciRepository, KullaniciRepository>();
 builder.Services.AddScoped<IKategoriRepository, KategoriRepository>();
 builder.Services.AddScoped<IOduncRepository, OduncRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
-
+// Build the app
 var app = builder.Build();
 
+// Seed data in development environment
 if (app.Environment.IsDevelopment())
 {
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await DataSeeder.SeedDataAsync(context);
+    }
+    
     app.UseSwagger();
     app.UseSwaggerUI();
-    
 }
-
+app.UseResponseCompression();
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCors("FrontendPolicy"); 
+app.UseAuthentication();        
+app.UseAuthorization();         
 app.MapControllers();
 
 app.Run();

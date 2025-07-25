@@ -9,6 +9,8 @@ namespace Kutuphane.Models
         public int SayfaSayisi { get; set; }
         public bool MusaitMi { get; set; } = true;
 
+        public string KapakUrl { get; set; } = string.Empty;
+
         public string Konum { get; set; } = string.Empty;
         public string RafNo { get; set; } = string.Empty;
         

@@ -56,7 +56,7 @@ namespace Kutuphane.Repositories
         public async Task<IEnumerable<Yazar>> GetYazarlarWithKitaplarAsync()
         {
             return await _context.Yazarlar
-                .Include(y => y.Kitaplar)  // Kitapları da getir
+                .Include(y => y.Kitaplar)  
                 .ToListAsync();
         }
 

@@ -18,7 +18,7 @@ namespace Kutuphane.Controllers
             _yazarRepository = yazarRepository;
             _logger = logger;
         }
-
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<YazarResponseDto>>> GetAllYazarlar()
         {

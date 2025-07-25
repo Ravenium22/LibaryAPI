@@ -42,7 +42,9 @@ namespace Kutuphane.Controllers
                     YazarId = k.YazarId,
                     KategoriId = k.KategoriId,
                     Konum = k.Konum,
-                    RafNo = k.RafNo
+                    RafNo = k.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{k.ISBN}-M.jpg"
+
                 });
                 return Ok(kitapDtos);
             }
@@ -80,7 +82,9 @@ namespace Kutuphane.Controllers
                     YazarId = kitap.YazarId,
                     KategoriId = kitap.KategoriId,
                     Konum = kitap.Konum,
-                    RafNo = kitap.RafNo
+                    RafNo = kitap.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{kitap.ISBN}-M.jpg"
+
                 };
 
                 _logger.LogInformation("Kitap başarıyla getirildi: ID {Id}, Başlık: {Baslik}", kitap.Id, kitap.Baslik);
@@ -112,7 +116,8 @@ namespace Kutuphane.Controllers
                     YazarId = kitapCreateDto.YazarId,
                     KategoriId = kitapCreateDto.KategoriId,
                     Konum = kitapCreateDto.Konum,
-                    RafNo = kitapCreateDto.RafNo
+                    RafNo = kitapCreateDto.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{kitapCreateDto.ISBN}-M.jpg"
                 };
 
                 var createdKitap = await _kitapRepository.AddAsync(kitap);
@@ -129,7 +134,9 @@ namespace Kutuphane.Controllers
                     YazarId = createdKitap.YazarId,
                     KategoriId = createdKitap.KategoriId,
                     Konum = createdKitap.Konum,
-                    RafNo = createdKitap.RafNo
+                    RafNo = createdKitap.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{createdKitap.ISBN}-M.jpg"
+
                 };
 
                 return CreatedAtAction(nameof(GetKitap), new { id = createdKitap.Id }, responseDto);
@@ -227,7 +234,10 @@ namespace Kutuphane.Controllers
                     YazarId = k.YazarId,
                     KategoriId = k.KategoriId,
                     Konum = k.Konum,
-                    RafNo = k.RafNo
+                    RafNo = k.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{k.ISBN}-M.jpg"
+
+
 
                 });
                 return Ok(kitapDtos);
@@ -262,7 +272,9 @@ namespace Kutuphane.Controllers
                     YazarId = k.YazarId,
                     KategoriId = k.KategoriId,
                     Konum = k.Konum,
-                    RafNo = k.RafNo
+                    RafNo = k.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{k.ISBN}-M.jpg"
+
                 });
                 return Ok(kitapDtos);
             }
@@ -296,7 +308,9 @@ namespace Kutuphane.Controllers
                     YazarId = k.YazarId,
                     KategoriId = k.KategoriId,
                     Konum = k.Konum,
-                    RafNo = k.RafNo
+                    RafNo = k.RafNo,
+                    KapakUrl = $"https://covers.openlibrary.org/b/isbn/{k.ISBN}-M.jpg"
+                    
                 });
 
                 return Ok(kitapDtos);

@@ -36,6 +36,7 @@ namespace Kutuphane.Models.DTOs
         public int Id { get; set; }
         public string Baslik { get; set; } = string.Empty;
         public string ISBN { get; set; } = string.Empty;
+        public string KapakUrl { get; set; } = string.Empty;
         public DateTime YayinTarihi { get; set; }
         public int SayfaSayisi { get; set; }
         public bool MusaitMi { get; set; }
